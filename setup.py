@@ -1,7 +1,5 @@
 from setuptools import setup, find_packages
 
-from tgdhstruct import binary_tree
-
 setup(
     name='tgdhstruct',
     version='1.0.0',
