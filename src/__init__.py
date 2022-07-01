@@ -1,0 +1,1 @@
+from src.tgdh_struct import TgdhStruct
