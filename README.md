@@ -3,6 +3,7 @@ This repo contains the source code and source distribution for tgdhstruct, a Pyt
 ## Installation
 Download the source distribution from within the `dist` directory.
 Install Graphviz:
+
 ***MacOS***
 ```
 brew install graphviz
