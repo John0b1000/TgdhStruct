@@ -1,0 +1,11 @@
+LICENSE.txt
+README.md
+setup.py
+src/__init__.py
+src/binary_tree.py
+src/data_node.py
+src/tgdh_struct.py
+tgdhstruct.egg-info/PKG-INFO
+tgdhstruct.egg-info/SOURCES.txt
+tgdhstruct.egg-info/dependency_links.txt
+tgdhstruct.egg-info/top_level.txt

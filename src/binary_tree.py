@@ -13,7 +13,7 @@ from anytree.exporter import DotExporter
 from anytree import RenderTree
 from anytree import search
 from anytree import PreOrderIter
-from data_node import DataNode
+from src.data_node import DataNode
 
 # class: BinaryTree
 #
