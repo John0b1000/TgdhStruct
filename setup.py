@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-from src import binary_tree
+from tgdhstruct import binary_tree
 
 setup(
     name='tgdhstruct',

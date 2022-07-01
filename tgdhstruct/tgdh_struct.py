@@ -4,7 +4,7 @@
 
 # import modules
 #
-from src.binary_tree import BinaryTree
+from tgdhstruct.binary_tree import BinaryTree
 
 # class: Tgdhstruct
 #
