@@ -5,6 +5,7 @@ setup(
     version='1.0.0',
     packages=find_packages(),
     url='https://github.com/John0b1000/tgdhstruct',
+    license='GNU General Public License v3.0',
     author='John Nori',
     author_email='johnlnori8@gmail.com',
     description='tgdh structure library',
