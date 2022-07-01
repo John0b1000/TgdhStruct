@@ -10,6 +10,5 @@ setup(
     author='John Nori',
     author_email='johnlnori8@gmail.com',
     description='tgdh structure library',
-    setup_requires=['anytree'],
     install_requires=['anytree']
 )
