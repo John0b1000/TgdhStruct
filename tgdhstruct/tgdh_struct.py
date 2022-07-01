@@ -110,7 +110,7 @@ class TgdhStruct:
             elif instruct in ('print group key', 'pg'):
                 print(f"\nCurrent Group Key: {str(self.btree.root.key)}")
             else:
-                print("**> Error: Invald input!")
+                print("\n**> Error: Invald input!")
     #
     # end method: get_events
 #
