@@ -9,5 +9,6 @@ setup(
     url='https://github.com/John0b1000/tgdhstruct',
     author='John Nori',
     author_email='johnlnori8@gmail.com',
-    description='tgdh structure library'
+    description='tgdh structure library',
+    install_requires=['anytree']
 )
