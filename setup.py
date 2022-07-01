@@ -9,5 +9,8 @@ setup(
     author='John Nori',
     author_email='johnlnori8@gmail.com',
     description='tgdh structure library',
-    install_requires=['anytree']
+    install_requires=[
+        'anytree',
+        'pycryptodome',
+    ]
 )
