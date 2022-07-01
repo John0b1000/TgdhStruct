@@ -104,7 +104,7 @@ class TgdhStruct:
                 else: print("**> Error: Invalid response!")
             elif instruct in ('print', 'p'):
                 self.btree.tree_print()
-            elif instruct in ('verbose print', 'p'):
+            elif instruct in ('verbose print', 'vp'):
                 self.btree.tree_print()
                 self.btree.verbose_node_print()
             elif instruct in ('print group key', 'pg'):
