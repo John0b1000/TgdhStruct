@@ -264,7 +264,7 @@ class DataNode(NodeMixin):
         print("Key co-path:")
         for node in self.get_co_path():
             print(node.name)
-        print(f"\n{'//'.center(80, '-')}")
+        print(f"{'//'.center(80, '-')}")
     #
     # end method: print_attributes
 #
