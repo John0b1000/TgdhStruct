@@ -93,7 +93,7 @@ class TgdhStruct:
                 return 0
             elif instruct in ('find', 'f'):
                 ans = input(">> Would you like to find a member or node? ")
-                if ans == "m" or ans == "member":
+                if ans in ('member', 'm'):
                     iden = input(">> Enter the member ID: ")
                     fmem = self.btree.find_node(iden, True)
                     fmem.print_attributes()
@@ -104,10 +104,10 @@ class TgdhStruct:
                 else: print("**> Error: Invalid response!")
             elif instruct in ('print', 'p'):
                 self.btree.tree_print()
-            elif instruct ('verbose print', 'p'):
+            elif instruct in ('verbose print', 'p'):
                 self.btree.tree_print()
                 self.btree.verbose_node_print()
-            elif instruct in ('print group', 'pg'):
+            elif instruct in ('print group key', 'pg'):
                 print(f"\nCurrent Group Key: {str(self.btree.root.key)}")
             else:
                 print("**> Error: Invald input!")
