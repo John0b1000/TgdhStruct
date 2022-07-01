@@ -17,3 +17,8 @@ Use pip3 to install:
 ```
 pip3 install <filename>.tar.gz
 ```
+## Building Source Distribution
+The source distribution file (sdist) can be built using the following command:
+```
+python3 setup.py sdist --formats=gztar
+```
