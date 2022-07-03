@@ -95,7 +95,7 @@ class TgdhStruct:
                 ans = input(">> Would you like to find a member or node? ")
                 if ans in ('member', 'm'):
                     iden = input(">> Enter the member ID: ")
-                    fmem = self.btree.find_node(iden, True)
+                    fmem = self.btree.find_node(int(iden), True)
                     fmem.print_attributes()
                 elif ans in ('node', 'n'):
                     iden = input(">> Enter node index (l,v): ")

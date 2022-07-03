@@ -52,29 +52,29 @@ class DataNode(NodeMixin):
 
     Methods
     -------
-    get_sibling(self) -> DataNode:
+    get_sibling(self) -> DataNode
         This method returns the sibling of any node in the binary tree.
-     calculate_name(self) -> None:
+     calculate_name(self) -> None
         This method determines the name of a node based on the name of its parent.
-    gen_private_key(self) -> None:
+    gen_private_key(self) -> None
         This method generates a random private key.
-    gen_blind_key(self) -> None:
+    gen_blind_key(self) -> None
         This method generates the blind key.
-    get_key_path(self) -> tuple[DataNode]:
+    get_key_path(self) -> tuple[DataNode]
         This method gets the path from the current node up to the root.
-     get_co_path(self) -> list[DataNode]:
+     get_co_path(self) -> list[DataNode]
         This method gets the co-path from the current node up to the root.
-    sponsor_assign(self, mid: int=0, key: int=None, b_key: int=None, join: bool=True) -> None:
-        This method tags a node as a sponsor node.
-    insertion_assign(self) -> None:
+    sponsor_assign(self, mid: Optional[int]=None, key: Optional[int]=None, b_key: Optional[int]=None, join: bool=True) -> None
+        This method tags a node as the sponsor node.
+    insertion_assign(self) -> None
         This method tags a node as the insertion node.
-    new_memb_assign(self, mid: int) -> None:
-        This method tags a node as a new member node.
-    transfer_data_remove(self, node: DataNode) -> None:
-        This method transfer data from a specified node and then removes that node.
-    make_root(self) -> None:
+    new_memb_assign(self, mid: int) -> None
+        This method tags a node as the new member node.
+    transfer_data_remove(self, node: DataNode) -> None
+        This method transfers data from a specified node and then removes that node.
+    make_root(self) -> None
         This method makes the current node the root.
-    print_attributes(self) -> None:
+    print_attributes(self) -> None
         This method prints all node attributes.
     '''
 
@@ -85,7 +85,7 @@ class DataNode(NodeMixin):
 
     # constructor
     #
-    def __init__(self, pos: str='NA', l: int=0, v: int=0, parent: DataNode=None, ntype: str='root', mid: Optional[int]=None, rchild: DataNode=None, lchild: DataNode=None) -> None:
+    def __init__(self, pos: str='NA', l: int=0, v: int=0, parent: Optional[DataNode]=None, ntype: str='root', mid: Optional[int]=None, rchild: Optional[DataNode]=None, lchild: Optional[DataNode]=None) -> None:
         '''This is the constructor.'''
 
         # tree data
@@ -102,8 +102,8 @@ class DataNode(NodeMixin):
 
         # Diffie-Hellman encryption data
         #
-        self.key = None  # randomly generated private key
-        self.b_key = None   # blind (public) key
+        self.key = None
+        self.b_key = None
     #
     # end constructor
 
@@ -172,8 +172,8 @@ class DataNode(NodeMixin):
 
     # method: sponsor_assign
     #
-    def sponsor_assign(self, mid: int=0, key: int=None, b_key: int=None, join: bool=True) -> None:
-        '''This method tags a node as a sponsor node.'''
+    def sponsor_assign(self, mid: Optional[int]=None, key: Optional[int]=None, b_key: Optional[int]=None, join: bool=True) -> None:
+        '''This method tags a node as the sponsor node.'''
 
         self.ntype = 'spon'
         if join:
@@ -198,7 +198,7 @@ class DataNode(NodeMixin):
     # method: new_memb_assign
     #
     def new_memb_assign(self, mid: int) -> None:
-        '''This method tags a node as a new member node.'''
+        '''This method tags a node as the new member node.'''
 
         self.ntype = 'mem'
         self.mid = mid
@@ -208,7 +208,7 @@ class DataNode(NodeMixin):
     # method: transfer_data_remove
     #
     def transfer_data_remove(self, node: DataNode) -> None:
-        '''This method transfer data from a specified node and then removes that node.'''
+        '''This method transfers data from a specified node and then removes that node.'''
 
         self.ntype = node.ntype
         self.mid = node.mid

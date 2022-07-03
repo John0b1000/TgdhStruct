@@ -8,7 +8,7 @@ setup(
     license='GNU General Public License v3.0',
     author='John Nori',
     author_email='johnlnori8@gmail.com',
-    description='tgdh structure library',
+    description='Tree Structure for TGDH Implementation',
     install_requires=[
         'anytree',
         'pycryptodome',

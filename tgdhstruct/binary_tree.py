@@ -111,7 +111,7 @@ class BinaryTree:
         self.uid = uid
         self.my_node = None
         self.nodetrack = 1
-        self.nodemax = (2*size)- 1
+        self.nodemax = (2*size)-1
         self.nextmemb = size+1
         self.height = math.floor(math.log((self.nodemax-1),2))
         self.root = DataNode()
@@ -155,7 +155,7 @@ class BinaryTree:
                 self.walk_tree_build(curr_n.lchild)
         else:
             self.add_nodes(curr_n)
-            self.nodetrack = self.nodetrack + 2  # nodes are added in pairs
+            self.nodetrack = self.nodetrack + 2
     #
     # end method: walk_tree_build
 
@@ -360,7 +360,7 @@ class BinaryTree:
         def mem_finder(node: DataNode) -> DataNode:
             '''This helper function is utilized to search the tree by member ID.'''
 
-            if node.mid == int(iden):
+            if node.mid == iden:
                 return node
         #
         # end function: mem_finder
@@ -465,8 +465,6 @@ class BinaryTree:
     def tree_refresh(self, event: str) -> None:
         '''This method refreshes tree attributes and keys after an event.'''
 
-        # refresh proper attributes and keys; take appropriate action if sponsor
-        #
         self.find_me()
         self.recalculate_names()
         self.tree_export()
@@ -501,7 +499,7 @@ class BinaryTree:
         #
         inserti_node = self.find_insertion()
         self.add_nodes(inserti_node)
-        sponsor_node = inserti_node.lchild  # the sponsor is always the sibling of the new member
+        sponsor_node = inserti_node.lchild
         newmemb_node = inserti_node.rchild
         self.refresh_path = newmemb_node.get_key_path()
 
@@ -547,10 +545,8 @@ class BinaryTree:
         #
         for node in self.get_leaves():
             if node.mid == eid:
-
                 if node.parent.ntype == 'root':
-
-                    # the root must be relocated
+                    # if the parent of the leaving node is the root, the root must be relocated
                     #
                     new_root = node.get_sibling()
                     new_root.make_root()
@@ -561,16 +557,10 @@ class BinaryTree:
                     gc.collect()
 
                 else:
-
-                    # assign the sponsor
+                    # assign the sponsor and transfer data
                     #
                     sponsor_node = list(self.walk_pre_order(node.get_sibling()))[-1]
                     sponsor_node.sponsor_assign(join=False)
-
-                    # transfer data from the sibling node to the parent
-                    # the parent node is being replaced
-                    # the memory for the leaving node is freed
-                    #
                     node.parent.transfer_data_remove(node.get_sibling())
                     del node
                     gc.collect()
