@@ -75,7 +75,7 @@ class TgdhStruct:
     #
     # end method: leave_protocol
 
-    # method: get_instructions
+    # method: get_events
     #
     def get_events(self) -> None:
         '''This method is to demonstrate tree functionality.'''
@@ -92,7 +92,7 @@ class TgdhStruct:
                 print("Freeing resources and exiting ...")
                 return 0
             elif instruct in ('find', 'f'):
-                ans = input(">> Would you like to find a member or node? ")
+                ans = input(">> Would you like to find a member (m) or node (n)? ")
                 if ans in ('member', 'm'):
                     iden = input(">> Enter the member ID: ")
                     fmem = self.btree.find_node(int(iden), True)
@@ -109,8 +109,10 @@ class TgdhStruct:
                 self.btree.verbose_node_print()
             elif instruct in ('print group key', 'pg'):
                 print(f"\nCurrent Group Key: {str(self.btree.root.key)}")
+            elif instruct in ('help', 'h'):
+                print("\nValid events:\n join, j\n leave, l\n find, f\n print, p\n verbose print, vp\n print group key, pg\n quit, q")
             else:
-                print("\n**> Error: Invald input!")
+                print("\n**> Error: Invald input! Enter 'help' or 'h' for a support message.")
     #
     # end method: get_events
 #
