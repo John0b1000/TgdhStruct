@@ -16,7 +16,7 @@ sudo apt install graphviz
 python3 setup.py install
 ```
 ## Usage
-Run the command_demo example from within the examples folder.
+Run the `command_demo` example from within the examples folder.
 ```
 python3 command_demo.py
 ```
