@@ -12,10 +12,10 @@ brew install graphviz
 sudo apt install graphviz
 ```
 ### Install tgdhstruct
-*Sudo permissions may be required (Errno 13). This issue may be caused by insufficient write permissions on `easy-install.pth` file.*
 ```
 python3 setup.py install
 ```
+*Sudo permissions may be required (Errno 13). This issue may be caused by insufficient write permissions on `easy-install.pth` file.*
 ## Usage
 Run the `command_demo` example from within the examples folder:
 ```
