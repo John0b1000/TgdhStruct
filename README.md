@@ -16,7 +16,7 @@ sudo apt install graphviz
 python3 setup.py install
 ```
 ## Usage
-Run the `command_demo` example from within the examples folder.
+Run the `command_demo` example from within the examples folder:
 ```
 python3 command_demo.py
 ```
@@ -26,7 +26,7 @@ The source distribution file (sdist) can be built using the following command:
 ```
 python3 setup.py sdist --formats=gztar
 ```
-This library can then be installed using the pip tool.
+This library can then be installed using the pip tool:
 ```
 pip3 install <filename>.tar.gz
 ```
