@@ -1,7 +1,7 @@
 # Python Package: tgdhstruct
 This repo contains the source code and source distribution for **tgdhstruct**, a Python library that provides a tree structure to implement a Tree-based Group Diffie-Hellman (TGDH) encryption scheme. 
 ## Installation
-###Install Graphviz:
+### Install Graphviz:
 #### MacOS:
 ```
 brew install graphviz
