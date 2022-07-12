@@ -1,4 +1,4 @@
-# file: command_demo
+# file: command_demo.py
 #
 '''
 This example demonstrates instantiation of a TgdhStruct object.
@@ -32,4 +32,4 @@ if __name__ == "__main__":
     main()
 
 #
-# end file: command_demo
+# end file: command_demo.py
