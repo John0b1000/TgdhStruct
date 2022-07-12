@@ -4,6 +4,7 @@
 
 # import modules
 #
+import re
 from tgdhstruct.binary_tree import BinaryTree
 
 # class: Tgdhstruct
@@ -85,22 +86,40 @@ class TgdhStruct:
             if instruct in ('join', 'j'):
                 self.btree.join_event()
             elif instruct in ('leave', 'l'):
-                lmem = int(input(">> Enter leaving member ID: "))
+                while True:
+                    try:
+                        lmem = int(input(">> Enter leaving member ID: "))
+                        if self.btree.find_node(lmem, True) is None:
+                            print("**> Error: Node not found!")
+                        else:
+                            break
+                    except ValueError:
+                        print("**> Error: Invalid input! (int expected)")
                 self.btree.leave_event(lmem)
-            elif instruct in ('quit', 'q'):
-                self.leave_protocol()
-                print("Freeing resources and exiting ...")
-                return 0
             elif instruct in ('find', 'f'):
                 ans = input(">> Would you like to find a member (m) or node (n)? ")
                 if ans in ('member', 'm'):
-                    iden = input(">> Enter the member ID: ")
+                    while True:
+                        try:
+                            iden = int(input(">> Enter the member ID: "))
+                            break
+                        except ValueError:
+                            print("**> Error: Invalid input! (int expected)")
                     fmem = self.btree.find_node(int(iden), True)
-                    fmem.print_attributes()
+                    if fmem is None:
+                        print("**> Error: Member not found!")
+                    else:
+                        fmem.print_attributes()
                 elif ans in ('node', 'n'):
                     iden = input(">> Enter node index (l,v): ")
-                    fnode = self.btree.find_node(iden, False)
-                    fnode.print_attributes()
+                    if bool(re.match('\d,\d', iden)):
+                        fnode = self.btree.find_node(iden, False)
+                        if fnode is None:
+                            print("**> Error: Node not found!")
+                        else:
+                            fnode.print_attributes()
+                    else:
+                        print("**> Error: Improper format! (Enter: l,v)")
                 else: print("**> Error: Invalid response!")
             elif instruct in ('print', 'p'):
                 self.btree.tree_print()
@@ -109,6 +128,10 @@ class TgdhStruct:
                 self.btree.verbose_node_print()
             elif instruct in ('print group key', 'pg'):
                 print(f"\nCurrent Group Key: {str(self.btree.root.key)}")
+            elif instruct in ('quit', 'q'):
+                self.leave_protocol()
+                print("Freeing resources and exiting ...")
+                return 0
             elif instruct in ('help', 'h'):
                 print("\nValid events:\n join, j\n leave, l\n find, f\n print, p\n verbose print, vp\n print group key, pg\n quit, q")
             else:

@@ -6,7 +6,7 @@
 #
 import sys
 import gc
-from typing import Optional
+from typing import Optional, Union
 import math
 import itertools
 from anytree.exporter import DotExporter
@@ -74,7 +74,7 @@ class BinaryTree:
         This method calculates the group key.
     build_tree(self) -> None
         This method builds the initial tree from the constructor.
-    find_node(self, iden: int, memflag: bool) -> DataNode
+    find_node(self, iden: Union[int, str], memflag: bool) -> DataNode
         This method finds a specific node in the tree.
     recalculate_names(self) -> None
         This method recalculates the names (position indices) for each node.
@@ -90,7 +90,7 @@ class BinaryTree:
         This method refreshes tree attributes and keys after an event.
     join_event(self) -> None
         This method updates the tree when a new member joins the group.
-    leave_event(self, eid: str) -> None
+    leave_event(self, eid: int) -> None
         This method updates the tree when a member leaves the tree
     new_member_protocol(self) -> None
         This method is used by the new member when joining the group.
@@ -352,7 +352,7 @@ class BinaryTree:
 
     # method: find_node
     #
-    def find_node(self, iden: int, memflag: bool) -> DataNode:
+    def find_node(self, iden: Union[int, str], memflag: bool) -> DataNode:
         '''This method finds a specific node in the tree.'''
 
         # function: mem_finder
@@ -526,7 +526,7 @@ class BinaryTree:
 
     # method: leave_event
     #
-    def leave_event(self, eid: str) -> None:
+    def leave_event(self, eid: int) -> None:
         '''This method updates the tree when a member leaves the tree'''
 
         # signal that a member is leaving
