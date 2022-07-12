@@ -112,7 +112,7 @@ class TgdhStruct:
             elif instruct in ('help', 'h'):
                 print("\nValid events:\n join, j\n leave, l\n find, f\n print, p\n verbose print, vp\n print group key, pg\n quit, q")
             else:
-                print("\n**> Error: Invald input! Enter 'help' or 'h' for a support message.")
+                print("\n**> Error: Invald input!\nEnter 'help' or 'h' for a support message.")
     #
     # end method: get_events
 #
