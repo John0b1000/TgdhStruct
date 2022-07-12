@@ -78,7 +78,7 @@ class TgdhStruct:
     # method: get_events
     #
     def get_events(self) -> None:
-        '''This method is to demonstrate tree functionality.'''
+        '''This method simulates tree functionality.'''
 
         while True:
             instruct = input("\n>> Enter event here: ")
