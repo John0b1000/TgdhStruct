@@ -10,6 +10,25 @@ from osbrain import run_agent
 from osbrain import run_nameserver
 from tgdhstruct.tgdh_struct import TgdhStruct
 
+# function: receive_bkeys
+#
+def receive_bkeys(agent, message):
+    agent.log_info(f"Received: {message}")
+    data = message.split(':')
+    node = agent.data.btree.find_node(data[0].lstrip('<').rstrip('>'), False)
+    node.b_key = int(data[1])
+#
+# end function: receive_bkeys
+
+# function: receive_tree
+#
+def receive_tree(agent, tree):
+
+    agent.log_info("Tree received!")
+    agent.data = tree
+#
+# end function: receive_tree
+
 # class: MemberAgent
 #
 class MemberAgent():
@@ -41,32 +60,12 @@ class MemberAgent():
     #
     # end constructor
 
-    # method: send_keys
+    # function: send_info
     #
     def send_info(self, agent, channel, data_message):
         agent.send(channel, data_message)
     #
-    # end method: send_keys
-
-    # method: receive_bkeys
-    #
-    def receive_bkeys(self, agent, message):
-
-        agent.log_info(f"Received: {message}")
-        data = message.split(':')
-        node = agent.data.btree.find_node(data[0].lstrip('<').rstrip('>'), False)
-        node.b_key = int(data[1])
-    #
-    # end method: receive_bkeys
-
-    # method: receive_tree
-    #
-    def receive_tree(self, agent, tree):
-
-        agent.log_info("Tree received!")
-        agent.data = tree
-    #
-    # end method: receive_tree
+    # end function: send_info
 
     # method: update_size
     #
@@ -140,7 +139,7 @@ class MemberAgent():
                 if dest_name is not None:
                     dest_node = self.agents[i].data.btree.find_node(dest_name.lstrip('<').rstrip('>'), False)
                     dest_mem = dest_node.leaves[0].mid
-                    self.agents[i].connect(self.addr[dest_mem-1], handler=self.receive_bkeys)
+                    self.agents[i].connect(self.addr[dest_mem-1], handler=receive_bkeys)
 
             # send blind keys for the proper node
             #
@@ -219,7 +218,7 @@ class MemberAgent():
                     if key_node in update_paths[i]:
                         dest_name = key_node
                         if dest_name is not None:
-                            self.agents[i].connect(self.addr[self.spon_id-1], handler=self.receive_bkeys)
+                            self.agents[i].connect(self.addr[self.spon_id-1], handler=receive_bkeys)
 
             # sponsor sends appropriate blind keys
             #
@@ -269,7 +268,7 @@ class MemberAgent():
         mem = f'mem_{self.sponsor.data.btree.uid}'
         self.addr.insert(self.sponsor.data.btree.uid-1, self.sponsor.bind('PUB', alias=mem))
         dest_mem = self.sponsor.data.btree.uid
-        self.new_memb.connect(self.addr[dest_mem-1], handler=self.receive_tree)
+        self.new_memb.connect(self.addr[dest_mem-1], handler=receive_tree)
 
         # sponsor sends the tree to the joining member
         #
