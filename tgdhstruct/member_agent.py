@@ -294,7 +294,7 @@ class MemberAgent():
         #
         mem = f'mem_{self.new_memb.data.btree.uid}'
         self.addr[-1] = self.new_memb.bind('PUB', alias=mem)
-        self.sponsor.connect(self.addr[-1], handler=self.receive_bkeys)
+        self.sponsor.connect(self.addr[-1], handler=receive_bkeys)
         blind_key = self.new_memb.data.btree.my_node.b_key
         message = f'{self.new_memb.data.btree.my_node.name}:{blind_key}'
         print('')
