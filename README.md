@@ -1,5 +1,5 @@
 # Python Package: tgdhstruct
-***[NOTICE]***: To see the command-line demo of this library, install via the `demo` branch.
+***Notice***: To see the command-line demo of this library, install via the `demo` branch.
 
 This repo contains the source code and source distribution for **tgdhstruct**, a Python library that provides a tree structure to implement a Tree-based Group Diffie-Hellman (TGDH) encryption scheme.
 ![Tree Image](docs/assets/tree_export.png)
