@@ -17,11 +17,10 @@ python3 setup.py install
 ```
 *Sudo permissions may be required (Errno 13). This issue may be caused by insufficient write permissions on `easy-install.pth` file.*
 ## Usage
-Run the `command_demo` example from within the examples folder:
+Run the `network_demo` example from within the examples folder:
 ```
-python3 command_demo.py
+python3 network_demo.py <initial_size>
 ```
-Type 'help' or 'h' into the command line after entering initial keys.
 ## Building Source Distribution
 The source distribution file (sdist) can be built using the following command:
 ```
