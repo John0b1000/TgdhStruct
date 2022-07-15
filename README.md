@@ -22,6 +22,9 @@ python3 setup.py install
 ```
 ### Install tgdhstruct
 ```
+https://github.com/John0b1000/tgdhstruct.git
+```
+```
 python3 setup.py install
 ```
 *Sudo permissions may be required (Errno 13). This issue may be caused by insufficient write permissions on `easy-install.pth` file.*
