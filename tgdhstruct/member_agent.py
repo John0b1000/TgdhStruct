@@ -43,14 +43,14 @@ class MemberAgent():
 
     # method: send_keys
     #
-    def send_info(agent, channel, data_message):
+    def send_info(self, agent, channel, data_message):
         agent.send(channel, data_message)
     #
     # end method: send_keys
 
     # method: receive_bkeys
     #
-    def receive_bkeys(agent, message):
+    def receive_bkeys(self, agent, message):
 
         agent.log_info(f"Received: {message}")
         data = message.split(':')
