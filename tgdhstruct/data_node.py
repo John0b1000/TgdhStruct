@@ -248,7 +248,7 @@ class DataNode(NodeMixin):
         print(f"Node Name: {self.name}")
         if self.parent is not None:
             print(f"Node Parent: {self.parent.name}")
-        print(f"Node index: {str(self.l)},{str(self.v)}>")
+        print(f"Node index: <{str(self.l)},{str(self.v)}>")
         print(f"Node Type: {self.ntype}")
         if self.mid is not None:
             print(f"Node id: {str(self.mid)}")
