@@ -60,7 +60,7 @@ class DataNode(NodeMixin):
         This method generates a random private key.
     gen_blind_key(self) -> None
         This method generates the blind key.
-    get_key_path(self) -> tuple[DataNode]
+    get_key_path(self) -> list[DataNode]
         This method gets the path from the current node up to the root.
      get_co_path(self) -> list[DataNode]
         This method gets the co-path from the current node up to the root.
@@ -154,10 +154,10 @@ class DataNode(NodeMixin):
 
     # method: get_key_path
     #
-    def get_key_path(self) -> tuple[DataNode]:
+    def get_key_path(self) -> list[DataNode]:
         '''This method gets the path from the current node up to the root.'''
 
-        return(tuple(reversed(self.path)))
+        return(list(reversed(self.path)))
     #
     # end method: get_key_path
 
@@ -248,7 +248,7 @@ class DataNode(NodeMixin):
         print(f"Node Name: {self.name}")
         if self.parent is not None:
             print(f"Node Parent: {self.parent.name}")
-        print(f"Node index: {str(self.l)},{str(self.v)}>")
+        print(f"Node index: <{str(self.l)},{str(self.v)}>")
         print(f"Node Type: {self.ntype}")
         if self.mid is not None:
             print(f"Node id: {str(self.mid)}")

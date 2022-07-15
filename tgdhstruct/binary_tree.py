@@ -6,7 +6,7 @@
 #
 import sys
 import gc
-from typing import Optional, Union
+from typing import Union
 import math
 import itertools
 from anytree.exporter import DotExporter
@@ -62,14 +62,8 @@ class BinaryTree:
         This function finds the node in the tree that corresponds to this user.
     key_generation(self) -> None
         This method generates keys only for my node.
-    get_key(self, name: str) -> int
-        This method retrieves a key that has been sent.
-    send_key(self, node: DataNode) -> None
-        This method sends a blind key to the rest of the group
-    initial_calculate_send_group_key(self) -> None
-        This method calculates the group key; it sends blind keys along the way.
-    sponsor_calculate_send_group_key(self) -> None
-        This method calculates the group key; the sponsor sends updated blind keys.
+    initial_calculate_group_key(self, max_iters: int) -> None:
+        This method calculates the group key iteratively.
     calculate_group_key(self) -> None
         This method calculates the group key.
     build_tree(self) -> None
@@ -80,13 +74,11 @@ class BinaryTree:
         This method recalculates the names (position indices) for each node.
     find_insertion(self) -> DataNode
         This method finds the point of insertion for a joining node.
-    sponsor_communication_protocol(self, node: Optional[DataNode], join: bool) -> None
-        This method initiates sponsor protocol for the sponsor node.
-    grab_updated_keys(self) -> None
+    get_update_path(self) -> set[DataNode]
         This method determines which keys need to be updated and receives them.
     empty_check(self) -> None
         This method determines if I am the only member left in the group and exits if so.
-    tree_refresh(self, event: str) -> None
+    tree_refresh(self) -> None
         This method refreshes tree attributes and keys after an event.
     join_event(self) -> None
         This method updates the tree when a new member joins the group.
@@ -233,90 +225,40 @@ class BinaryTree:
     def key_generation(self) -> None:
         '''This method generates keys only for my node.'''
 
-        print("\nGenerating New Keys ...")
         self.my_node.gen_private_key()
         self.my_node.gen_blind_key()
-        print("New keys generated!")
     #
     # end method: key_generation
 
-    # method: get_key
+    # method: initial_calculate_group_key
     #
-    def get_key(self, name: str) -> int:
-        '''This method retrieves a key that has been sent.'''
+    def initial_calculate_group_key(self, max_iters: int) -> None:
+        '''This method calculates the group key iteratively.'''
 
-        print(f"\nReceiving blind key for node {name}...")
-        while True:
-            try:
-                key = int(input("Enter blind key here: "))
+        iters = 0
+        key_path = self.my_node.get_key_path()
+        co_path = self.my_node.get_co_path()
+        for i, node in enumerate(co_path):
+            key_path[i+1].key = pow(int(node.b_key), key_path[i].key, DataNode.p)
+            if key_path[i+1].ntype != 'root':
+                key_path[i+1].gen_blind_key()
+            iters = iters+1
+            if iters > max_iters:
                 break
-            except ValueError:
-                print("**> Error: Invalid input! (int expected)")
-        print(f"Key received: {str(key)} for node {name}")
-        return key
     #
-    # end method: get_key
-
-    # method: send_key
-    #
-    def send_key(self, node: DataNode) -> None:
-        '''This method sends a blind key to the rest of the group'''
-
-        print(f"\nSending blind key for node {node.b_key} ...")
-        print(f"\tBlind key: {node.name}")
-    #
-    # end method: send_key
-
-    # method: initial_calculate_send_group_key
-    #
-    def initial_calculate_send_group_key(self) -> None:
-        '''This method calculates the group key; it sends blind keys along the way.'''
-
-        print("\nCalculating the group key ...")
-        key_path = self.my_node.get_key_path()
-        co_path = self.my_node.get_co_path()
-        self.send_key(self.my_node)
-        for i, node in enumerate(co_path):
-            node.b_key = self.get_key(node.name)
-            key_path[i+1].key = pow(int(node.b_key), key_path[i].key, DataNode.p)
-            if key_path[i+1].ntype != 'root':
-                key_path[i+1].gen_blind_key()
-                self.send_key(key_path[i+1])
-        print(f"New group key computed: {self.root.key}")
-    #
-    # end method: initial_calculate_send_group_key
-
-    # method: sponsor_calculate_send_group_key
-    #
-    def sponsor_calculate_send_group_key(self) -> None:
-        '''This method calculates the group key; the sponsor sends updated blind keys.'''
-
-        print("\nCalculating the group key ...")
-        key_path = self.my_node.get_key_path()
-        co_path = self.my_node.get_co_path()
-        self.send_key(self.my_node)
-        for i, node in enumerate(co_path):
-            key_path[i+1].key = pow(int(node.b_key), key_path[i].key, DataNode.p)
-            if key_path[i+1].ntype != 'root':
-                key_path[i+1].gen_blind_key()
-                self.send_key(key_path[i+1])
-        print(f"New group key computed: {self.root.key}")
-    #
-    # end method: sponsor_calculate_send_group_key
+    # end method: initial_calculate_group_key
 
     # method: calculate_group_key
     #
     def calculate_group_key(self) -> None:
         '''This method calculates the group key.'''
 
-        print("\nCalculating the group key ...")
         key_path = self.my_node.get_key_path()
         co_path = self.my_node.get_co_path()
         for i, node in enumerate(co_path):
             key_path[i+1].key = pow(int(node.b_key), key_path[i].key, DataNode.p)
             if key_path[i+1].ntype != 'root':
                 key_path[i+1].gen_blind_key()
-        print(f"New group key computed: {self.root.key}")
     #
     # end method: calculate_group_key
 
@@ -341,7 +283,7 @@ class BinaryTree:
         # generate keys and calculate the group key
         #
         self.key_generation()
-        self.initial_calculate_send_group_key()
+        #self.initial_calculate_group_key()
 
         # view the tree
         #
@@ -416,38 +358,17 @@ class BinaryTree:
     #
     # end method: find_insertion
 
-    # method: sponsor_communication_protocol
+    # method: get_update_path
     #
-    def sponsor_communication_protocol(self, node: Optional[DataNode], join: bool) -> None:
-        '''This method initiates sponsor protocol for the sponsor node.'''
-
-        if join:
-            # if this is a join, send the serialized tree and get the blind key from the new member
-            #
-            print("\nSerializing and sending tree ...")
-            node.b_key = self.get_key(node.name)
-            self.sponsor_calculate_send_group_key()
-            self.calculate_group_key()
-        else:
-            # otherwise, just calculate and send (sponsor calculates new private key)
-            #
-            self.key_generation()
-            self.sponsor_calculate_send_group_key()
-    #
-    # end method: sponsor_communication_protocol
-
-    # method: grab_updated_keys
-    #
-    def grab_updated_keys(self) -> None:
+    def get_update_path(self) -> set[DataNode]:
         '''This method determines which keys need to be updated and receives them.'''
 
         new_path = set(self.refresh_path)
         our_path = set(self.my_node.get_co_path())
         update_path = our_path.intersection(new_path)
-        for node in update_path:
-            node.b_key = self.get_key(node.name)
+        return update_path
     #
-    # end method: grab_updated_keys
+    # end method: get_update_path
 
     # method: empty_check
     #
@@ -462,23 +383,15 @@ class BinaryTree:
 
     # method: tree_refresh
     #
-    def tree_refresh(self, event: str) -> None:
+    def tree_refresh(self) -> None:
         '''This method refreshes tree attributes and keys after an event.'''
 
         self.find_me()
         self.recalculate_names()
         self.tree_export()
-        if self.my_node.ntype != 'spon':
-            self.grab_updated_keys()
-            self.calculate_group_key()
-        else:
-            print("\nI am the sponsor!")
+        if self.my_node.ntype == 'spon':
+            print("I am the sponsor!")
             print("Entering sponsor protocol ...")
-            if event == 'j':
-                self.sponsor_communication_protocol(self.my_node.get_sibling(), True)
-            else:
-                self.sponsor_communication_protocol(None, False)
-        self.tree_print()
     #
     # end method: tree_refresh
 
@@ -489,7 +402,7 @@ class BinaryTree:
 
         # signal that a member is joining
         #
-        print("\nNew member is joining the group!")
+        print(f"\nNew member is joining the group! (I am member {self.uid})")
 
         # prepare the tree by assigning types
         #
@@ -520,7 +433,7 @@ class BinaryTree:
 
         # refresh the tree
         #
-        self.tree_refresh('j')
+        self.tree_refresh()
     #
     # end method: join_event
 
@@ -571,7 +484,7 @@ class BinaryTree:
 
         # refresh the tree
         #
-        self.tree_refresh('l')
+        self.tree_refresh()
     #
     # end method: leave_event
 
@@ -588,15 +501,11 @@ class BinaryTree:
         # generate keys and send blind key
         #
         self.key_generation()
-        self.send_key(self.my_node)
 
-        # get the blind key from the sponsor
+        # print the tree
         #
-        self.my_node.get_sibling().b_key = self.get_key(self.my_node.get_sibling().name)
-
-        # calculate the group key
-        #
-        self.calculate_group_key()
+        self.tree_export()
+        self.tree_print()
     #
     # end method: new_member_protocol
 
@@ -630,7 +539,8 @@ class BinaryTree:
     def tree_print(self) -> None:
         '''This method prints the tree to the terminal.'''
 
-        print("\nDisplaying the tree and key information ...")
+        print(f"\n{'Tree Update'.center(80, '-')}")
+        print(f"\nDisplaying the tree and key information (I am member {self.uid}) ...")
         for pre, _, node in RenderTree(self.root):
             treestr = f'{pre}{node.name}'
             datastr = f'type: {node.ntype}, ID: {node.mid}, key: {node.key}, b_key: {node.b_key}'
