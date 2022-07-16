@@ -1,49 +1,122 @@
 # file: member_agent.py
 #
+'''This file contains the MemberAgent class along with helper functions.'''
 
 # import modules
 #
 import time
 from math import floor, log
 from copy import copy
-from osbrain import run_agent
 from osbrain import run_nameserver
-from tgdhstruct.tgdh_struct import TgdhStruct
+from osbrain import run_agent
+from osbrain import Proxy, NSProxy, AgentAddress
+from tgdhstruct.binary_tree import BinaryTree
 
 # function: receive_bkeys
 #
-def receive_bkeys(agent, message):
+def receive_bkeys(agent: Proxy, message: str) -> None:
+    '''This helper function processes received blind keys.'''
+
     agent.log_info(f"Received: {message}")
     data = message.split(':')
-    node = agent.data.btree.find_node(data[0].lstrip('<').rstrip('>'), False)
+    newtree = agent.get_data()
+    node = newtree.find_node(data[0].lstrip('<').rstrip('>'), False)
     node.b_key = int(data[1])
+    agent.set_data(newtree)
 #
 # end function: receive_bkeys
 
 # function: receive_tree
 #
-def receive_tree(agent, tree):
+def receive_tree(agent: Proxy, tree: BinaryTree) -> None:
+    '''This helper function processes received tree object.'''
 
     agent.log_info("Tree received!")
-    agent.data = tree
+    agent.set_data(tree)
 #
 # end function: receive_tree
+
+# function: set_data
+#
+def set_data(self, tree: BinaryTree) -> None:
+    '''This helper function creates and sets a data attribute for the agent.'''
+
+    self.data = tree
+#
+# end function: set_data
+
+# function: get_data
+#
+def get_data(self) -> BinaryTree:
+    '''This function returns the created data attribute for the agent.'''
+
+    return self.data
+#
+# end function: set_data
 
 # class: MemberAgent
 #
 class MemberAgent():
+    '''
+    Description
+    -----------
+    This class manages the multi-agent system used to faciliate the TGDH scheme.
+
+    Attributes
+    ----------
+    agents : list[Proxy]
+        A list of the agents
+    addr : list[AgentAddress]
+        A list of the addresses used for communication
+    size : int
+        The number of members in the group
+    nodemax : int
+        The maximum number of nodes in the initial tree with <size> members
+    max_height : int
+        The maximum height of the initial tree
+    level : int
+        The current level in the tree
+    sponsor : Agent
+        The sponsor agent
+    new_memb : Agent
+        The new member agent
+    spon_id = None
+        The member ID of the sponsor
+    new_id = None
+        The member ID of the new member
+    nameserver : NSProxy
+        The running nameserver
+
+    Methods
+    -------
+    send_info(self, agent: Proxy, channel: str, data_message: str) -> None:
+        This method sends information to a publishing channel.
+    update_size(self) -> None:
+        This method updates the size attributes for the current group.
+    close_connections(self) -> None:
+        This method closes all agent connections.
+    initial_key_exchange(self) -> None:
+        This method facilitates the initial key exchange algorithmically.
+    join_key_exchange(self) -> None:
+        This method facilitates the key exchange for a join event algorithmically.
+    join_protocol(self) -> None:
+        This method facilitates a new member joining the group.
+    close(self) -> None:
+        This method shuts down the nameserver.
+    '''
 
     # constructor
     #
-    def __init__(self, size):
-        
+    def __init__(self, size: int) -> None:
+        '''This is the constructor.'''
+
         # define class data
         #
-        self.size = size
         self.agents = []
         self.addr = []
-        nodemax = (2*self.size)-1
-        self.max_height = floor(log((nodemax-1),2))
+        self.size = size
+        self.nodemax = (2*self.size)-1
+        self.max_height = floor(log((self.nodemax-1),2))
         self.level = 0
         self.sponsor = None
         self.new_memb = None
@@ -52,7 +125,7 @@ class MemberAgent():
 
         # system deployment
         #
-        self.ns = run_nameserver()
+        self.nameserver = run_nameserver()
 
         # initialize the tree
         #
@@ -60,28 +133,30 @@ class MemberAgent():
     #
     # end constructor
 
-    # function: send_info
+    # method: send_info
     #
-    def send_info(self, agent, channel, data_message):
+    def send_info(self, agent: Proxy, channel: str, data_message: str) -> None:
+        '''This method sends information to a publishing channel.'''
+
         agent.send(channel, data_message)
     #
-    # end function: send_info
+    # end method: send_info
 
     # method: update_size
     #
-    def update_size(self):
+    def update_size(self) -> None:
+        '''This method updates the size attributes for the current group.'''
 
-        # update the size attributes
-        #
         self.size = self.size+1
-        nodemax = (2*self.size)-1
-        self.max_height = floor(log((nodemax-1),2))
+        self.nodemax = (2*self.size)-1
+        self.max_height = floor(log((self.nodemax-1),2))
     #
     # end method: update_size
 
     # method: close_connections
     #
-    def close_connections(self):
+    def close_connections(self) -> None:
+        '''This method closes all agent connections.'''
 
         for agent in self.agents:
             agent.close_all()
@@ -90,8 +165,11 @@ class MemberAgent():
 
     # method: initial_key_exchange
     #
-    def initial_key_exchange(self):
+    def initial_key_exchange(self) -> None:
+        '''This method facilitates the initial key exchange algorithmically.'''
 
+        # print a divider
+        #
         print(f"\n{'Key Exchange (Init)'.center(80, '=')}")
 
         # initialize all agents with their trees and co-paths
@@ -102,13 +180,14 @@ class MemberAgent():
         for i in range(self.size):
             mem = f'mem_{i+1}'
             self.agents.append(run_agent(mem))
-            self.agents[i].data = TgdhStruct(self.size, i+1)
+            self.agents[i].set_method(set_data, get_data)
+            self.agents[i].set_data(BinaryTree(self.size, i+1))
             temp_key_path = []
-            for node in self.agents[i].data.btree.my_node.get_key_path():
+            for node in self.agents[i].get_data().my_node.get_key_path():
                 temp_key_path.append(node.name)
             key_paths.append(temp_key_path)
             temp_co_path = []
-            for node in self.agents[i].data.btree.my_node.get_co_path():
+            for node in self.agents[i].get_data().my_node.get_co_path():
                 temp_co_path.append(node.name)
             co_paths.append(temp_co_path)
 
@@ -123,7 +202,7 @@ class MemberAgent():
 
         # perform the send-receive communication protocol
         #
-        while self.level < self.max_height:    
+        while self.level < self.max_height:
 
             # establish publishers (each node will publish)
             #
@@ -137,7 +216,7 @@ class MemberAgent():
             for i in range(self.size):
                 dest_name = co_paths[i][self.level]
                 if dest_name is not None:
-                    dest_node = self.agents[i].data.btree.find_node(dest_name.lstrip('<').rstrip('>'), False)
+                    dest_node = self.agents[i].get_data().find_node(dest_name.lstrip('<').rstrip('>'), False)
                     dest_mem = dest_node.leaves[0].mid
                     self.agents[i].connect(self.addr[dest_mem-1], handler=receive_bkeys)
 
@@ -148,7 +227,7 @@ class MemberAgent():
                 mem = f'mem_{i+1}'
                 key_node = key_paths[i][self.level]
                 if key_node is not None:
-                    blind_key = self.agents[i].data.btree.find_node(key_node.lstrip('<').rstrip('>'), False).b_key
+                    blind_key = self.agents[i].get_data().find_node(key_node.lstrip('<').rstrip('>'), False).b_key
                     message = f'{key_node}:{blind_key}'
                     self.send_info(self.agents[i], mem, message)
 
@@ -157,16 +236,18 @@ class MemberAgent():
             time.sleep(1)
             for i in range(self.size):
                 if co_paths[i][self.level] is not None:
-                    newtree = self.agents[i].data
-                    newtree.btree.initial_calculate_group_key(iters[i])
+                    newtree = self.agents[i].get_data()
+                    newtree.initial_calculate_group_key(iters[i])
                     iters[i] = iters[i]+1
-                    self.agents[i].data = newtree
-                    self.agents[i].data.btree.tree_print()
+                    self.agents[i].set_data(newtree)
+                    self.agents[i].get_data().tree_print()
 
             # close connections to prevent unnecessary sending/receiving
             #
             self.close_connections()
 
+            # increment the level
+            #
             time.sleep(1)
             print(f"\nLevel {self.max_height-self.level} finished!")
             self.level = self.level+1
@@ -177,8 +258,11 @@ class MemberAgent():
 
     # method: join_key_exchange
     #
-    def join_key_exchange(self):
+    def join_key_exchange(self) -> None:
+        '''This method facilitates the key exchange for a join event algorithmically.'''
 
+        # print a divider
+        #
         print(f"\n{'Key Exchange (Join)'.center(80, '=')}")
 
         # start at level 1 of the tree
@@ -191,7 +275,7 @@ class MemberAgent():
         for i in range(self.size):
             if i not in (self.spon_id-1, self.new_id-1):
                 temp_update_path = []
-                for node in self.agents[i].data.btree.get_update_path():
+                for node in self.agents[i].get_data().get_update_path():
                     temp_update_path.append(node.name)
                 update_paths.append(list(reversed(temp_update_path)))
             else:
@@ -200,10 +284,10 @@ class MemberAgent():
         # get the sponsor's key path
         #
         spon_key_path = []
-        for node in self.sponsor.data.btree.my_node.get_key_path():
+        for node in self.sponsor.get_data().my_node.get_key_path():
             spon_key_path.append(node.name)
-        
-        while self.level < self.max_height:    
+
+        while self.level < self.max_height:
 
             # only the sponsor will publish
             #
@@ -222,7 +306,7 @@ class MemberAgent():
 
             # sponsor sends appropriate blind keys
             #
-            blind_key = self.sponsor.data.btree.find_node(key_node.lstrip('<').rstrip('>'), False).b_key
+            blind_key = self.sponsor.get_data().find_node(key_node.lstrip('<').rstrip('>'), False).b_key
             message = f'{key_node}:{blind_key}'
             print('')
             self.send_info(self.sponsor, mem, message)
@@ -231,6 +315,8 @@ class MemberAgent():
             #
             self.close_connections()
 
+            # increment the level
+            #
             time.sleep(1)
             print(f"\nLevel {self.max_height-self.level} finished!")
             self.level = self.level+1
@@ -239,17 +325,18 @@ class MemberAgent():
 
     # method: join_protocol
     #
-    def join_protocol(self):
+    def join_protocol(self) -> None:
+        '''This method facilitates a new member joining the group.'''
 
         print(f"\n{'Join Event'.center(80, '=')}")
 
         # alert current members that a new member is joining; find the sponsor
         #
         for i in range(self.size):
-            newtree = self.agents[i].data
-            newtree.btree.join_event()
-            self.agents[i].data = newtree
-            if self.agents[i].data.btree.my_node.ntype == 'spon':
+            newtree = self.agents[i].get_data()
+            newtree.join_event()
+            self.agents[i].set_data(newtree)
+            if self.agents[i].get_data().my_node.ntype == 'spon':
                 self.sponsor = self.agents[i]
 
         # update the size of the tree
@@ -258,33 +345,34 @@ class MemberAgent():
 
         # initialize the joining member
         #
-        mem = f'mem_{self.sponsor.data.btree.nextmemb-1}'
+        mem = f'mem_{self.sponsor.get_data().nextmemb-1}'
         self.agents.append(run_agent(mem))
-        self.agents[-1].data = None
         self.new_memb = self.agents[-1]
+        self.new_memb.set_method(set_data, get_data)
+        self.new_memb.set_data(None)
 
         # joining member subscribes to the sponsor
         #
-        mem = f'mem_{self.sponsor.data.btree.uid}'
-        self.addr.insert(self.sponsor.data.btree.uid-1, self.sponsor.bind('PUB', alias=mem))
-        dest_mem = self.sponsor.data.btree.uid
+        mem = f'mem_{self.sponsor.get_data().uid}'
+        self.addr.insert(self.sponsor.get_data().uid-1, self.sponsor.bind('PUB', alias=mem))
+        dest_mem = self.sponsor.get_data().uid
         self.new_memb.connect(self.addr[dest_mem-1], handler=receive_tree)
 
         # sponsor sends the tree to the joining member
         #
-        self.spon_id = self.sponsor.data.btree.uid
-        stree = copy(self.sponsor.data)
-        stree.btree.my_node.key = None
-        print(f"\nMember {self.sponsor.data.btree.uid} is sending the tree ...\n")
+        self.spon_id = self.sponsor.get_data().uid
+        stree = copy(self.sponsor.get_data())
+        stree.my_node.key = None
+        print(f"\nMember {self.sponsor.get_data().uid} is sending the tree ...\n")
         self.send_info(self.sponsor, mem, stree)
 
         # allow new member to update its tree
         #
         time.sleep(1)
-        newtree = self.new_memb.data
-        newtree.btree.new_member_protocol()
-        self.new_memb.data = newtree
-        self.new_id = self.new_memb.data.btree.uid
+        newtree = self.new_memb.get_data()
+        newtree.new_member_protocol()
+        self.new_memb.set_data(newtree)
+        self.new_id = self.new_memb.get_data().uid
 
         # close connections
         #
@@ -292,25 +380,25 @@ class MemberAgent():
 
         # new member shares blind key with sponsor
         #
-        mem = f'mem_{self.new_memb.data.btree.uid}'
+        mem = f'mem_{self.new_memb.get_data().uid}'
         self.addr[-1] = self.new_memb.bind('PUB', alias=mem)
         self.sponsor.connect(self.addr[-1], handler=receive_bkeys)
-        blind_key = self.new_memb.data.btree.my_node.b_key
-        message = f'{self.new_memb.data.btree.my_node.name}:{blind_key}'
+        blind_key = self.new_memb.get_data().my_node.b_key
+        message = f'{self.new_memb.get_data().my_node.name}:{blind_key}'
         print('')
         self.send_info(self.new_memb, mem, message)
 
         # allow the sponsor and new member to calculate the group key
         #
         time.sleep(1)
-        newtree_s = self.sponsor.data
-        newtree_s.btree.calculate_group_key()
-        self.sponsor.data = newtree_s
-        self.sponsor.data.btree.tree_print()
-        newtree_n = self.new_memb.data
-        newtree_n.btree.calculate_group_key()
-        self.new_memb.data = newtree_n
-        self.new_memb.data.btree.tree_print()
+        newtree_s = self.sponsor.get_data()
+        newtree_s.calculate_group_key()
+        self.sponsor.set_data(newtree_s)
+        self.sponsor.get_data().tree_print()
+        newtree_n = self.new_memb.get_data()
+        newtree_n.calculate_group_key()
+        self.new_memb.set_data(newtree_n)
+        self.new_memb.get_data().tree_print()
 
         # sponsor sends updated blind keys
         #
@@ -321,21 +409,22 @@ class MemberAgent():
         time.sleep(1)
         for i in range(self.size):
             if i not in (self.spon_id-1, self.new_id-1):
-                newtree = self.agents[i].data
-                newtree.btree.calculate_group_key()
-                self.agents[i].data = newtree
-                self.agents[i].data.btree.tree_print()
+                newtree = self.agents[i].get_data()
+                newtree.calculate_group_key()
+                self.agents[i].set_data(newtree)
+                self.agents[i].get_data().tree_print()
     #
     # end method: join_protocol
 
     # method: close
     #
-    def close(self):
+    def close(self) -> None:
+        '''This method shuts down the nameserver.'''
 
         # shutdown the system
         #
         print(f"\n{'Exiting Program'.center(80, '=')}\n")
-        self.ns.shutdown()
+        self.nameserver.shutdown()
     #
     # end method: close
 #

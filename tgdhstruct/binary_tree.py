@@ -45,7 +45,7 @@ class BinaryTree:
         The path of the keys that need to be updated after a join or leave event
 
     Methods
-    ----------
+    -------
     add_nodes(self, curr_n: DataNode) -> None
         This method adds two children nodes to a specified parent node.
     get_leaves(self) -> tuple[DataNode]
