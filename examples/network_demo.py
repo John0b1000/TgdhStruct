@@ -1,14 +1,19 @@
 # file: network_demo.py
 #
+'''
+This example demonstrates instantiation of a MemberAgent class.
+A TGDH scheme is carried out using the multi-agent system.
+'''
 
 # import modules
 #
 import sys
-from tgdhstruct.member_agent import MemberAgent
+from tgdhstruct import MemberAgent
 
 # function: main
 #
 def main(argv):
+    '''This is the main function.'''
 
     # create an initial tree
     #
