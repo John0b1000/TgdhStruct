@@ -12,5 +12,6 @@ setup(
     install_requires=[
         'anytree',
         'pycryptodome',
+        'osbrain',
     ]
 )
