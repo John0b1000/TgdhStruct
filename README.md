@@ -13,13 +13,6 @@ brew install graphviz
 ```
 sudo apt install graphviz
 ```
-### Install Modified Version of osBrain
-```
-git clone https://github.com/John0b1000/osbrain
-```
-```
-python3 setup.py install
-```
 ### Install tgdhstruct
 ```
 https://github.com/John0b1000/tgdhstruct.git
