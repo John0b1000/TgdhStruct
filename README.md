@@ -31,7 +31,7 @@ The source distribution file (sdist) can be built using the following command:
 ```
 python3 setup.py sdist --formats=gztar
 ```
-This library can then be installed using the `pip` tool:
+This library can then be installed using the `pip3` tool:
 ```
 pip3 install <filename>.tar.gz
 ```
