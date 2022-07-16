@@ -15,7 +15,7 @@ sudo apt install graphviz
 ```
 ### Install tgdhstruct
 ```
-https://github.com/John0b1000/tgdhstruct.git
+git clone https://github.com/John0b1000/tgdhstruct.git
 ```
 ```
 python3 setup.py install
