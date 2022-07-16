@@ -13,16 +13,9 @@ brew install graphviz
 ```
 sudo apt install graphviz
 ```
-### Install Modified Version of osBrain
-```
-git clone https://github.com/John0b1000/osbrain
-```
-```
-python3 setup.py install
-```
 ### Install tgdhstruct
 ```
-https://github.com/John0b1000/tgdhstruct.git
+git clone https://github.com/John0b1000/tgdhstruct.git
 ```
 ```
 python3 setup.py install
@@ -38,7 +31,7 @@ The source distribution file (sdist) can be built using the following command:
 ```
 python3 setup.py sdist --formats=gztar
 ```
-This library can then be installed using the `pip` tool:
+This library can then be installed using the `pip3` tool:
 ```
 pip3 install <filename>.tar.gz
 ```
