@@ -249,10 +249,11 @@ class MemberAgent():
             # increment the level
             #
             time.sleep(1)
-            print(f"\nLevel {self.max_height-self.level} finished!")
+            print(f"\nSYS: Level {self.max_height-self.level} finished -- keys exchanged!")
             self.level = self.level+1
 
-        print("\nTree initialization completed!\nAll initial members have computed the group key.")
+        print("\nSYS: Tree initialization completed!")
+        print("SYS: All initial members have computed the group key.")
     #
     # end method: initial_key_exchange
 
@@ -318,7 +319,7 @@ class MemberAgent():
             # increment the level
             #
             time.sleep(1)
-            print(f"\nLevel {self.max_height-self.level} finished!")
+            print(f"\nSYS: Level {self.max_height-self.level} finished -- keys exchanged!")
             self.level = self.level+1
         #
         # end method: join_key_exchange
@@ -363,7 +364,7 @@ class MemberAgent():
         self.spon_id = self.sponsor.get_data().uid
         stree = copy(self.sponsor.get_data())
         stree.my_node.key = None
-        print(f"\nMember {self.sponsor.get_data().uid} is sending the tree ...\n")
+        print(f"\nSYS: Member {self.sponsor.get_data().uid} is sending the tree ...\n")
         self.send_info(self.sponsor, mem, stree)
 
         # allow new member to update its tree
@@ -413,6 +414,9 @@ class MemberAgent():
                 newtree.calculate_group_key()
                 self.agents[i].set_data(newtree)
                 self.agents[i].get_data().tree_print()
+
+        print("\nSYS: Tree updation completed!")
+        print("SYS: All members have computed the new group key.")
     #
     # end method: join_protocol
 

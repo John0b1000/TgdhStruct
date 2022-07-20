@@ -269,8 +269,7 @@ class BinaryTree:
 
         # recursively build the tree
         #
-        print(f"\nGenerating Tree with {str(self.size).rjust(2)} members ...")
-        print(f"I am member {str(self.uid).rjust(2)}")
+        print(f"\nMEM {self.uid}: Generating Tree with {str(self.size).rjust(2)} members ...")
         while self.nodetrack is not self.nodemax:
             self.walk_tree_build(self.root)
 
@@ -390,8 +389,8 @@ class BinaryTree:
         self.recalculate_names()
         self.tree_export()
         if self.my_node.ntype == 'spon':
-            print("I am the sponsor!")
-            print("Entering sponsor protocol ...")
+            print(f"MEM {self.uid}: I am the sponsor!")
+            print(f"MEM {self.uid}: Entering sponsor protocol ...")
     #
     # end method: tree_refresh
 
@@ -402,7 +401,7 @@ class BinaryTree:
 
         # signal that a member is joining
         #
-        print(f"\nNew member is joining the group! (I am member {self.uid})")
+        print(f"\nMEM {self.uid}: New member is joining the group!")
 
         # prepare the tree by assigning types
         #
@@ -539,8 +538,9 @@ class BinaryTree:
     def tree_print(self) -> None:
         '''This method prints the tree to the terminal.'''
 
-        print(f"\n{'Tree Update'.center(80, '-')}")
-        print(f"\nDisplaying the tree and key information (I am member {self.uid}) ...")
+        print(f"\n{f'Tree Update (Member {self.uid})'.center(80, '-')}")
+        print(f"\nMEM {self.uid}: Displaying the tree and key information ...")
+        print('')
         for pre, _, node in RenderTree(self.root):
             treestr = f'{pre}{node.name}'
             datastr = f'type: {node.ntype}, ID: {node.mid}, key: {node.key}, b_key: {node.b_key}'
