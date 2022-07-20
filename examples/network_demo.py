@@ -21,12 +21,12 @@ def main(argv):
 
     # demonstrate a join event
     #
-    input("Press 'enter' or 'return' to trigger a join event ")
+    input("\nPress 'enter' or 'return' to trigger a join event ")
     group_tree.join_protocol()
 
     # do another join
     #
-    input("Press 'enter' or 'return' to trigger a join event ")
+    input("\nPress 'enter' or 'return' to trigger a join event ")
     group_tree.join_protocol()
 
     # exit gracefully
