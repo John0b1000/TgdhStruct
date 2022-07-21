@@ -37,13 +37,7 @@ def main(argv):
     # demonstrate another leave event
     #
     input("\n>> Press 'enter' or 'return' to trigger a leave event ")
-    group_tree.leave_protocol(5)
-
-    input("\n>> Press 'enter' or 'return' to trigger a leave event ")
     group_tree.leave_protocol(2)
-
-    input("\n>> Press 'enter' or 'return' to trigger a leave event ")
-    group_tree.leave_protocol(6)
 
     # exit gracefully
     #
