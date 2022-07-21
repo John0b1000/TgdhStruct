@@ -538,7 +538,6 @@ class BinaryTree:
     def tree_print(self) -> None:
         '''This method prints the tree to the terminal.'''
 
-        print(f"\n{f'Tree Update (Member {self.uid})'.center(80, '-')}")
         print(f"\nMEM {self.uid}: Displaying the tree and key information ...")
         print('')
         for pre, _, node in RenderTree(self.root):

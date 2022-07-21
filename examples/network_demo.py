@@ -29,6 +29,11 @@ def main(argv):
     input("\nPress 'enter' or 'return' to trigger a join event ")
     group_tree.join_protocol()
 
+    # demonstrate a leave event
+    #
+    input("\nPress 'enter' or 'return' to trigger a leave event ")
+    group_tree.leave_protocol(3)
+
     # exit gracefully
     #
     group_tree.close()

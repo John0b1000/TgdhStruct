@@ -91,7 +91,7 @@ class MemberAgent():
     -------
     send_info(self, agent: Proxy, channel: str, data_message: str) -> None:
         This method sends information to a publishing channel.
-    update_size(self) -> None:
+    update_size(self, join: bool) -> None:
         This method updates the size attributes for the current group.
     close_connections(self) -> None:
         This method closes all agent connections.
@@ -144,12 +144,17 @@ class MemberAgent():
 
     # method: update_size
     #
-    def update_size(self) -> None:
+    def update_size(self, join: bool) -> None:
         '''This method updates the size attributes for the current group.'''
 
-        self.size = self.size+1
-        self.nodemax = (2*self.size)-1
-        self.max_height = floor(log((self.nodemax-1),2))
+        if join:
+            self.size = self.size+1
+            self.nodemax = (2*self.size)-1
+            self.max_height = floor(log((self.nodemax-1),2))
+        else:
+            self.size = self.size-1
+            self.nodemax = (2*self.size)-1
+            self.max_height = floor(log((self.nodemax-1),2))
     #
     # end method: update_size
 
@@ -342,7 +347,7 @@ class MemberAgent():
 
         # update the size of the tree
         #
-        self.update_size()
+        self.update_size(True)
 
         # initialize the joining member
         #
@@ -415,10 +420,138 @@ class MemberAgent():
                 self.agents[i].set_data(newtree)
                 self.agents[i].get_data().tree_print()
 
+        # close connections
+        #
+        self.close_connections()
+
         print("\nSYS: Tree updation completed!")
         print("SYS: All members have computed the new group key.")
     #
     # end method: join_protocol
+
+    # method: leave_key_exchange
+    #
+    def leave_key_exchange(self):
+        '''This method the key exchange for a leave event algorithmically.'''
+
+        # print a divider
+        #
+        print(f"\n{'Key Exchange (Leave)'.center(80, '=')}")
+
+        # start at level 1 of the tree
+        #
+        self.level = 1
+
+        # get the update paths of all members
+        #
+        update_paths = []
+        for i in range(self.size):
+            if i not in (self.spon_id-1, self.new_id-1):
+                temp_update_path = []
+                for node in self.agents[i].get_data().get_update_path():
+                    temp_update_path.append(node.name)
+                update_paths.append(list(reversed(temp_update_path)))
+            else:
+                update_paths.append(None)
+
+        # get the sponsor's key path
+        #
+        spon_key_path = []
+        for node in self.sponsor.get_data().my_node.get_key_path():
+            spon_key_path.append(node.name)
+
+        while self.level < self.max_height:
+
+            # only the sponsor will publish
+            #
+            mem = f'mem_{self.spon_id}'
+            self.addr[self.spon_id-1] = self.sponsor.bind('PUB', alias=mem)
+
+            # establish subscribers (sponsor will publish)
+            #
+            key_node = spon_key_path[self.level]
+            for i in range(self.size):
+                if update_paths[i] is not None:
+                    if key_node in update_paths[i]:
+                        dest_name = key_node
+                        if dest_name is not None:
+                            self.agents[i].connect(self.addr[self.spon_id-1], handler=receive_bkeys)
+
+            # sponsor sends appropriate blind keys
+            #
+            blind_key = self.sponsor.get_data().find_node(key_node.lstrip('<').rstrip('>'), False).b_key
+            message = f'{key_node}:{blind_key}'
+            print('')
+            self.send_info(self.sponsor, mem, message)
+
+            # close connections to prevent unnecessary sending/receiving
+            #
+            self.close_connections()
+
+            # increment the level
+            #
+            time.sleep(1)
+            print(f"\nSYS: Level {self.max_height-self.level} finished -- keys exchanged!")
+            self.level = self.level+1
+        #
+    #
+    # end method: leave_key_exchange
+
+    # method: leave_protocol
+    #
+    def leave_protocol(self, eid: int):
+        '''This method facilitates a member leaving the group.'''
+
+        print(f"\n{'Leave Event'.center(80, '=')}")
+
+        # update the size of the tree
+        #
+        self.update_size(False)
+
+        # remove the agent
+        #
+        self.agents.pop(eid-1)
+        self.addr.pop(eid-1)
+
+        # alert current members that a member is leaving the group; find the sponsor
+        #
+        for i in range(self.size):
+            newtree = self.agents[i].get_data()
+            newtree.leave_event(eid)
+            self.agents[i].set_data(newtree)
+            if self.agents[i].get_data().my_node.ntype == 'spon':
+                self.sponsor = self.agents[i]
+
+        # sponsor generates new keys
+        #
+        print(f"\nSYS: Member {self.sponsor.get_data().uid} is generating new keys ...\n")
+        newtree = self.sponsor.get_data()
+        newtree.key_generation()
+        self.sponsor.set_data(newtree)
+        self.sponsor.get_data().tree_print()
+
+        # sponsor sends updated blind keys
+        #
+        self.leave_key_exchange()
+
+        # allow all remaining members to calculate the group key
+        #
+        time.sleep(1)
+        for i in range(self.size):
+            if i not in (self.spon_id-1, self.new_id-1):
+                newtree = self.agents[i].get_data()
+                newtree.calculate_group_key()
+                self.agents[i].set_data(newtree)
+                self.agents[i].get_data().tree_print()
+
+        # close connections
+        #
+        self.close_connections()
+
+        print("\nSYS: Tree updation completed!")
+        print("SYS: All members have computed the new group key.")
+    #
+    # end method: leave_protocol
 
     # method: close
     #
