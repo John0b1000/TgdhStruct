@@ -506,6 +506,7 @@ class MemberAgent():
 
         # update the size of the tree
         #
+        self.new_id = None
         self.update_size(False)
 
         # remove the agent
@@ -524,6 +525,7 @@ class MemberAgent():
 
         # sponsor generates new keys
         #
+        self.spon_id = self.sponsor.get_data().uid
         print(f"\nSYS: Member {self.sponsor.get_data().uid} is generating new keys ...\n")
         newtree = self.sponsor.get_data()
         newtree.key_generation()
@@ -538,7 +540,7 @@ class MemberAgent():
         #
         time.sleep(1)
         for i in range(self.size):
-            if i not in (self.spon_id-1, self.new_id-1):
+            if i not in (self.spon_id-1):
                 newtree = self.agents[i].get_data()
                 newtree.calculate_group_key()
                 self.agents[i].set_data(newtree)
