@@ -446,7 +446,7 @@ class MemberAgent():
         #
         update_paths = []
         for i in range(self.size):
-            if i not in (self.spon_id-1, self.new_id-1):
+            if i not in (self.spon_id-1):
                 temp_update_path = []
                 for node in self.agents[i].get_data().get_update_path():
                     temp_update_path.append(node.name)
