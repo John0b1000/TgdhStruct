@@ -21,18 +21,29 @@ def main(argv):
 
     # demonstrate a join event
     #
-    input("\nPress 'enter' or 'return' to trigger a join event ")
+    input("\n>> Press 'enter' or 'return' to trigger a join event ")
     group_tree.join_protocol()
 
     # do another join
     #
-    input("\nPress 'enter' or 'return' to trigger a join event ")
+    input("\n>> Press 'enter' or 'return' to trigger a join event ")
     group_tree.join_protocol()
 
     # demonstrate a leave event
     #
-    input("\nPress 'enter' or 'return' to trigger a leave event ")
+    input("\n>> Press 'enter' or 'return' to trigger a leave event ")
     group_tree.leave_protocol(3)
+
+    # demonstrate another leave event
+    #
+    input("\n>> Press 'enter' or 'return' to trigger a leave event ")
+    group_tree.leave_protocol(5)
+
+    input("\n>> Press 'enter' or 'return' to trigger a leave event ")
+    group_tree.leave_protocol(2)
+
+    input("\n>> Press 'enter' or 'return' to trigger a leave event ")
+    group_tree.leave_protocol(6)
 
     # exit gracefully
     #

@@ -112,8 +112,8 @@ class MemberAgent():
 
         # define class data
         #
-        self.agents = []
-        self.addr = []
+        self.agents = {}
+        self.addr = {}
         self.size = size
         self.nodemax = (2*self.size)-1
         self.max_height = floor(log((self.nodemax-1),2))
@@ -163,8 +163,8 @@ class MemberAgent():
     def close_connections(self) -> None:
         '''This method closes all agent connections.'''
 
-        for agent in self.agents:
-            agent.close_all()
+        for agent in self.agents.items():
+            agent[1].close_all()
     #
     # end method: close_connections
 
@@ -184,15 +184,15 @@ class MemberAgent():
         iters = [0]*self.size
         for i in range(self.size):
             mem = f'mem_{i+1}'
-            self.agents.append(run_agent(mem))
-            self.agents[i].set_method(set_data, get_data)
-            self.agents[i].set_data(BinaryTree(self.size, i+1))
+            self.agents[i+1] = run_agent(mem)
+            self.agents[i+1].set_method(set_data, get_data)
+            self.agents[i+1].set_data(BinaryTree(self.size, i+1))
             temp_key_path = []
-            for node in self.agents[i].get_data().my_node.get_key_path():
+            for node in self.agents[i+1].get_data().my_node.get_key_path():
                 temp_key_path.append(node.name)
             key_paths.append(temp_key_path)
             temp_co_path = []
-            for node in self.agents[i].get_data().my_node.get_co_path():
+            for node in self.agents[i+1].get_data().my_node.get_co_path():
                 temp_co_path.append(node.name)
             co_paths.append(temp_co_path)
 
@@ -211,41 +211,41 @@ class MemberAgent():
 
             # establish publishers (each node will publish)
             #
-            self.addr = []
-            for i in range(self.size):
-                mem = f'mem_{i+1}'
-                self.addr.append(self.agents[i].bind('PUB', alias=mem))
+            self.addr = {}
+            for key in self.agents.keys():
+                mem = f'mem_{key}'
+                self.addr[key] = self.agents[key].bind('PUB', alias=mem)
 
             # establish subscribers (proper co-path member)
             #
-            for i in range(self.size):
-                dest_name = co_paths[i][self.level]
+            for key in self.agents.keys():
+                dest_name = co_paths[key-1][self.level]
                 if dest_name is not None:
-                    dest_node = self.agents[i].get_data().find_node(dest_name.lstrip('<').rstrip('>'), False)
+                    dest_node = self.agents[key].get_data().find_node(dest_name.lstrip('<').rstrip('>'), False)
                     dest_mem = dest_node.leaves[0].mid
-                    self.agents[i].connect(self.addr[dest_mem-1], handler=receive_bkeys)
+                    self.agents[key].connect(self.addr[dest_mem], handler=receive_bkeys)
 
             # send blind keys for the proper node
             #
             print('')
-            for i in range(self.size):
-                mem = f'mem_{i+1}'
-                key_node = key_paths[i][self.level]
+            for key in self.agents.keys():
+                mem = f'mem_{key}'
+                key_node = key_paths[key-1][self.level]
                 if key_node is not None:
-                    blind_key = self.agents[i].get_data().find_node(key_node.lstrip('<').rstrip('>'), False).b_key
+                    blind_key = self.agents[key].get_data().find_node(key_node.lstrip('<').rstrip('>'), False).b_key
                     message = f'{key_node}:{blind_key}'
-                    self.send_info(self.agents[i], mem, message)
+                    self.send_info(self.agents[key], mem, message)
 
             # calculate appropriate blind keys
             #
             time.sleep(1)
-            for i in range(self.size):
-                if co_paths[i][self.level] is not None:
-                    newtree = self.agents[i].get_data()
-                    newtree.initial_calculate_group_key(iters[i])
-                    iters[i] = iters[i]+1
-                    self.agents[i].set_data(newtree)
-                    self.agents[i].get_data().tree_print()
+            for key in self.agents.keys():
+                if co_paths[key-1][self.level] is not None:
+                    newtree = self.agents[key].get_data()
+                    newtree.initial_calculate_group_key(iters[key-1])
+                    iters[key-1] = iters[key-1]+1
+                    self.agents[key].set_data(newtree)
+                    self.agents[key].get_data().tree_print()
 
             # close connections to prevent unnecessary sending/receiving
             #
@@ -277,15 +277,15 @@ class MemberAgent():
 
         # get the update paths of all members
         #
-        update_paths = []
-        for i in range(self.size):
-            if i not in (self.spon_id-1, self.new_id-1):
+        update_paths = {}
+        for key in self.agents.keys():
+            if key not in (self.spon_id, self.new_id):
                 temp_update_path = []
-                for node in self.agents[i].get_data().get_update_path():
+                for node in self.agents[key].get_data().get_update_path():
                     temp_update_path.append(node.name)
-                update_paths.append(list(reversed(temp_update_path)))
+                update_paths[key] = list(reversed(temp_update_path))
             else:
-                update_paths.append(None)
+                update_paths[key] = None
 
         # get the sponsor's key path
         #
@@ -298,17 +298,17 @@ class MemberAgent():
             # only the sponsor will publish
             #
             mem = f'mem_{self.spon_id}'
-            self.addr[self.spon_id-1] = self.sponsor.bind('PUB', alias=mem)
+            self.addr[self.spon_id] = self.sponsor.bind('PUB', alias=mem)
 
             # establish subscribers (sponsor will publish)
             #
             key_node = spon_key_path[self.level]
-            for i in range(self.size):
-                if update_paths[i] is not None:
-                    if key_node in update_paths[i]:
+            for key in self.agents.keys():
+                if update_paths[key] is not None:
+                    if key_node in update_paths[key]:
                         dest_name = key_node
                         if dest_name is not None:
-                            self.agents[i].connect(self.addr[self.spon_id-1], handler=receive_bkeys)
+                            self.agents[key].connect(self.addr[self.spon_id], handler=receive_bkeys)
 
             # sponsor sends appropriate blind keys
             #
@@ -338,12 +338,12 @@ class MemberAgent():
 
         # alert current members that a new member is joining; find the sponsor
         #
-        for i in range(self.size):
-            newtree = self.agents[i].get_data()
+        for key in self.agents.keys():
+            newtree = self.agents[key].get_data()
             newtree.join_event()
-            self.agents[i].set_data(newtree)
-            if self.agents[i].get_data().my_node.ntype == 'spon':
-                self.sponsor = self.agents[i]
+            self.agents[key].set_data(newtree)
+            if self.agents[key].get_data().my_node.ntype == 'spon':
+                self.sponsor = self.agents[key]
 
         # update the size of the tree
         #
@@ -352,17 +352,17 @@ class MemberAgent():
         # initialize the joining member
         #
         mem = f'mem_{self.sponsor.get_data().nextmemb-1}'
-        self.agents.append(run_agent(mem))
-        self.new_memb = self.agents[-1]
+        self.agents[self.size] = run_agent(mem)
+        self.new_memb = self.agents[self.size]
         self.new_memb.set_method(set_data, get_data)
         self.new_memb.set_data(None)
 
         # joining member subscribes to the sponsor
         #
         mem = f'mem_{self.sponsor.get_data().uid}'
-        self.addr.insert(self.sponsor.get_data().uid-1, self.sponsor.bind('PUB', alias=mem))
+        self.addr[self.sponsor.get_data().uid] = self.sponsor.bind('PUB', alias=mem)
         dest_mem = self.sponsor.get_data().uid
-        self.new_memb.connect(self.addr[dest_mem-1], handler=receive_tree)
+        self.new_memb.connect(self.addr[dest_mem], handler=receive_tree)
 
         # sponsor sends the tree to the joining member
         #
@@ -387,8 +387,8 @@ class MemberAgent():
         # new member shares blind key with sponsor
         #
         mem = f'mem_{self.new_memb.get_data().uid}'
-        self.addr[-1] = self.new_memb.bind('PUB', alias=mem)
-        self.sponsor.connect(self.addr[-1], handler=receive_bkeys)
+        self.addr[self.new_id] = self.new_memb.bind('PUB', alias=mem)
+        self.sponsor.connect(self.addr[self.new_id], handler=receive_bkeys)
         blind_key = self.new_memb.get_data().my_node.b_key
         message = f'{self.new_memb.get_data().my_node.name}:{blind_key}'
         print('')
@@ -413,12 +413,12 @@ class MemberAgent():
         # allow all remaining members to calculate the group key
         #
         time.sleep(1)
-        for i in range(self.size):
-            if i not in (self.spon_id-1, self.new_id-1):
-                newtree = self.agents[i].get_data()
+        for key in self.agents.keys():
+            if key not in (self.spon_id, self.new_id):
+                newtree = self.agents[key].get_data()
                 newtree.calculate_group_key()
-                self.agents[i].set_data(newtree)
-                self.agents[i].get_data().tree_print()
+                self.agents[key].set_data(newtree)
+                self.agents[key].get_data().tree_print()
 
         # close connections
         #
@@ -444,15 +444,15 @@ class MemberAgent():
 
         # get the update paths of all members
         #
-        update_paths = []
-        for i in range(self.size):
-            if i not in (self.spon_id-1):
+        update_paths = {}
+        for key in self.agents.keys():
+            if key != self.spon_id:
                 temp_update_path = []
-                for node in self.agents[i].get_data().get_update_path():
+                for node in self.agents[key].get_data().get_update_path():
                     temp_update_path.append(node.name)
-                update_paths.append(list(reversed(temp_update_path)))
+                update_paths[key] = list(reversed(temp_update_path))
             else:
-                update_paths.append(None)
+                update_paths[key] = None
 
         # get the sponsor's key path
         #
@@ -465,17 +465,17 @@ class MemberAgent():
             # only the sponsor will publish
             #
             mem = f'mem_{self.spon_id}'
-            self.addr[self.spon_id-1] = self.sponsor.bind('PUB', alias=mem)
+            self.addr[self.spon_id] = self.sponsor.bind('PUB', alias=mem)
 
             # establish subscribers (sponsor will publish)
             #
             key_node = spon_key_path[self.level]
-            for i in range(self.size):
-                if update_paths[i] is not None:
-                    if key_node in update_paths[i]:
+            for key in self.agents.keys():
+                if update_paths[key] is not None:
+                    if key_node in update_paths[key]:
                         dest_name = key_node
                         if dest_name is not None:
-                            self.agents[i].connect(self.addr[self.spon_id-1], handler=receive_bkeys)
+                            self.agents[key].connect(self.addr[self.spon_id], handler=receive_bkeys)
 
             # sponsor sends appropriate blind keys
             #
@@ -511,24 +511,27 @@ class MemberAgent():
 
         # remove the agent
         #
-        self.agents.pop(eid-1)
-        self.addr.pop(eid-1)
+        del self.agents[eid]
+        del self.addr[eid]
 
         # alert current members that a member is leaving the group; find the sponsor
         #
-        for i in range(self.size):
-            newtree = self.agents[i].get_data()
+        for key in self.agents.keys():
+            newtree = self.agents[key].get_data()
             newtree.leave_event(eid)
-            self.agents[i].set_data(newtree)
-            if self.agents[i].get_data().my_node.ntype == 'spon':
-                self.sponsor = self.agents[i]
+            self.agents[key].set_data(newtree)
+            if self.agents[key].get_data().my_node.ntype == 'spon':
+                self.sponsor = self.agents[key]
 
-        # sponsor generates new keys
+        # sponsor generates new keys and calculates new group key
         #
         self.spon_id = self.sponsor.get_data().uid
-        print(f"\nSYS: Member {self.sponsor.get_data().uid} is generating new keys ...\n")
+        print(f"\nSYS: Member {self.sponsor.get_data().uid} is generating new keys ...")
         newtree = self.sponsor.get_data()
         newtree.key_generation()
+        self.sponsor.set_data(newtree)
+        newtree = self.sponsor.get_data()
+        newtree.calculate_group_key()
         self.sponsor.set_data(newtree)
         self.sponsor.get_data().tree_print()
 
@@ -539,12 +542,12 @@ class MemberAgent():
         # allow all remaining members to calculate the group key
         #
         time.sleep(1)
-        for i in range(self.size):
-            if i not in (self.spon_id-1):
-                newtree = self.agents[i].get_data()
+        for key in self.agents.keys():
+            if key != self.spon_id:
+                newtree = self.agents[key].get_data()
                 newtree.calculate_group_key()
-                self.agents[i].set_data(newtree)
-                self.agents[i].get_data().tree_print()
+                self.agents[key].set_data(newtree)
+                self.agents[key].get_data().tree_print()
 
         # close connections
         #
