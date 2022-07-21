@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='tgdhstruct',
-    version='1.1.1',
+    version='1.1.2',
     packages=find_packages(),
     url='https://github.com/John0b1000/tgdhstruct',
     license='GNU General Public License v3.0',
