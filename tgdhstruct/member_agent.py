@@ -438,9 +438,9 @@ class MemberAgent():
         #
         print(f"\n{'Key Exchange (Leave)'.center(80, '=')}")
 
-        # start at level 1 of the tree
+        # start at level 0 of the tree
         #
-        self.level = 1
+        self.level = 0
 
         # get the update paths of all members
         #

@@ -443,7 +443,7 @@ class BinaryTree:
 
         # signal that a member is leaving
         #
-        print(f"\nMember {str(eid)} is leaving the group!")
+        print(f"\nMEM {self.uid}: Member {str(eid)} is leaving the group!")
 
         # determine if the tree is empty
         #
