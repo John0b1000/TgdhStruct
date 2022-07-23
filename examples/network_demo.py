@@ -8,6 +8,7 @@ A TGDH scheme is carried out using the multi-agent system.
 # import modules
 #
 import sys
+import time
 from tgdhstruct import MemberAgent
 
 # function: main
@@ -44,10 +45,10 @@ def main(argv):
     input("\n>> Press 'enter' or 'return' to trigger a join event ")
     group_tree.join_protocol()
 
-
     # exit gracefully
     #
     group_tree.close()
+    time.sleep(2)
 
 # begin gracefully
 #
