@@ -474,6 +474,7 @@ class MemberAgent():
 
         # remove the agent
         #
+        self.agents[eid].shutdown()
         del self.agents[eid]
         del self.addr[eid]
 
