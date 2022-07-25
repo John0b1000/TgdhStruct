@@ -105,7 +105,7 @@ class BinaryTree:
         self.nodetrack = 1
         self.nodemax = (2*size)-1
         self.nextmemb = size+1
-        self.height = math.floor(math.log((self.nodemax),2))
+        self.height = math.floor(math.log(self.nodemax,2))
         self.root = DataNode()
         self.refresh_path = None
 
