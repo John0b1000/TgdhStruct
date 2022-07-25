@@ -40,9 +40,9 @@ class DataNode(NodeMixin):
     mid : int
         The member ID of the node
     rchild : DataNode
-        The left child of the node
-    lchild : DataNode
         The right child of the node
+    lchild : DataNode
+        The left child of the node
     name : str
         The level and position index of the node <l,v>
     key: int
